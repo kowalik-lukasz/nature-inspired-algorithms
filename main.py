@@ -92,7 +92,7 @@ def display_instance(filename: str, index_row: bool = True, index_col: bool = Fa
         for i, color in enumerate(solution_data.values[0]):
             labeldict[i] += ',' + str(color)
         nx.draw(graph, labels=labeldict, with_labels=True,
-                node_size=[len(label) * 200 for _, label in labeldict.items()])
+                node_size=[len(label) * len(label) * 60 for _, label in labeldict.items()])
     else:
         nx.draw(graph, labels=labeldict, with_labels=True)
 
@@ -105,6 +105,6 @@ if __name__ == '__main__':
         "solve": Solve
     })
 
-    display_instance('size11_instance.csv', index_col=True, solved=True)
+    # display_instance('size11_instance.csv', index_col=True, solved=True)
     # display_instance('size3_instance.csv', index_row=False, solved=True)
     # display_instance('size1_instance.csv', index_row=False)
