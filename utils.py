@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import os
 
 
-def read_instance(filename: str, index_row: bool = True, index_col: bool = False):
+def read_instance(filename: str, index_row: bool = True, index_col: bool = False, output: str = 'pandas'):
     problem_path = os.path.join(os.path.dirname(__file__), 'problem-instances', filename)
 
     id_row = 0
@@ -27,7 +27,10 @@ def read_instance(filename: str, index_row: bool = True, index_col: bool = False
         print('Unknown error ocurred!')
         exit(0)
 
-    return problem_data
+    if output == 'pandas':
+        return problem_data
+    else:
+        return problem_data.to_numpy()
 
 
 def display_instance(filename: str, index_row: bool = True, index_col: bool = False, solved: bool = False):
