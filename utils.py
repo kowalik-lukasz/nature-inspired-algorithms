@@ -1,4 +1,5 @@
 import networkx as nx
+import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import os
@@ -33,6 +34,10 @@ def read_instance(filename: str, index_row: bool = True, index_col: bool = False
         return problem_data.to_numpy()
 
 
+def save_solution(filename: str, data: np.array):
+    np.savetxt(os.path.join('solved-instances', 'solved_' + filename), [data], delimiter=',', fmt='%d')
+
+
 def display_instance(filename: str, index_row: bool = True, index_col: bool = False, solved: bool = False):
     """
     Displays the problem instance visually. The instance must exist within problem-instances directory
@@ -42,14 +47,13 @@ def display_instance(filename: str, index_row: bool = True, index_col: bool = Fa
     :param solved: a flag indicating whether the solution should be displayed (if available) along with the problem instance (default: False)
     """
     problem_data = read_instance(filename, index_row, index_col)
-    # solution_data = read_solution(filename)
     if not isinstance(problem_data, pd.DataFrame):
         print("Error! Data type not valid, quitting...")
     solution_path = os.path.join(os.path.dirname(__file__), 'solved-instances', 'solved_' + filename)
 
     if solved:
         try:
-            solution_data = pd.read_csv(solution_path, header=0)
+            solution_data = pd.read_csv(solution_path, header=None)
             if not len(solution_data.columns) == len(problem_data.columns):
                 raise AssertionError()
         except FileNotFoundError:
