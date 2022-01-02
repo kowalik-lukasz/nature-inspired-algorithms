@@ -85,6 +85,6 @@ class Solve:
         global_pos = global_pos_dict[min(global_fit_dict, key=global_fit_dict.get)]
         global_fit = global_fit_dict[min(global_fit_dict, key=global_fit_dict.get)]
         iter_counter = 1
-        while global_fit != 0 or iter_counter <= max_iter:
-            pass
+        while global_fit != 0 and iter_counter <= max_iter:
+            iter_counter += 1
             # Step 3 - Main loop of particle movement
