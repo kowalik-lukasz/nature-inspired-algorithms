@@ -1,6 +1,7 @@
-import sys
+import multiprocessing
+import os
 import numpy as np
-
+import time
 import utils
 from utils import read_instance
 from itertools import product
@@ -49,9 +50,41 @@ class Solve:
         print('Saving the best solution found: ' + str(best_fit_sol) + '\nwith the fitness value: ' + str(best_fit_val))
         utils.save_solution(self.filename, best_fit_sol)
 
-    def nature(self):
+    def _particle_init(self, p_id, mat_size, label_size, global_pos_dict, global_vel_dict, global_fit_dict):
+        np.random.seed((os.getpid() * int(time.time())) % 123456789)
+
+        p_vel = np.random.dirichlet(np.ones(label_size), size=mat_size)
+        p_best_pos = np.random.randint(label_size, size=mat_size)
+        p_best_fit = self._fitness_func(p_best_pos)
+
+        global_pos_dict[p_id] = p_best_pos
+        global_vel_dict[p_id] = p_vel
+        global_fit_dict[p_id] = p_best_fit
+
+    def nature(self, num_of_particles: int = 0, max_iter: int = 10000):
         """
         Solves the provided problem instance using the implemented nature-inspired PSO algorithm.
         """
         print("Solving with the nature inspired algorithm...")
-        # self._fitness_func(np.array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]))
+
+        # Step 1 - Initialization
+        particles = []
+        manager = multiprocessing.Manager()
+        global_pos_dict, global_vel_dict, global_fit_dict = manager.dict(), manager.dict(), manager.dict()
+        for i in range(num_of_particles):
+            p = multiprocessing.Process(target=self._particle_init,
+                                        args=(i, self.incidence_matrix.shape[0], 4,
+                                              global_pos_dict, global_vel_dict, global_fit_dict))
+            particles.append(p)
+            p.start()
+
+        for p in particles:
+            p.join()
+
+        # Step 2 - Loop end check - fitness 0 or max iterations reached
+        global_pos = global_pos_dict[min(global_fit_dict, key=global_fit_dict.get)]
+        global_fit = global_fit_dict[min(global_fit_dict, key=global_fit_dict.get)]
+        iter_counter = 1
+        while global_fit != 0 or iter_counter <= max_iter:
+            pass
+            # Step 3 - Main loop of particle movement
