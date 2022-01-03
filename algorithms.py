@@ -64,7 +64,7 @@ class Solve:
         vel_dict[p_id] = p_init_vel
         pbest_dict[p_id] = p_init_pos
 
-    def _particle_movement(self, p_id, w, c1, c2, global_best_pos,
+    def _particle_movement(self, p_id, label_size, w, c1, c2, global_best_pos,
                            pos_curr_dict, pos_prev_dict, vel_dict, pbest_dict):
 
         np.random.seed((os.getpid() * int(time.time())) % 123456789)
@@ -75,30 +75,35 @@ class Solve:
         if (pos_prev_dict[p_id] == np.full(self.incidence_matrix.shape[0], -1)).all():
             p_vel = w * vel_dict[p_id]
         else:
-            p_vel = 1 - (np.count_nonzero(pos_curr != pos_prev_dict[p_id]) / n)
-
+            p_vel = 1.0 - (np.count_nonzero(pos_curr != pos_prev_dict[p_id]) / n)
         vel_dict[p_id] = p_vel
-        pos_prev_dict[p_id] = pos_curr
 
         v_rand = w * p_vel
-        vp_best = c1 * np.random.uniform(0, 1) * (
-                1 - (np.count_nonzero(pos_curr != p_best_pos) / n))
-        vg_best = c2 * np.random.uniform(0, 1) * (
-                1 - (np.count_nonzero(pos_curr != global_best_pos) / n))
+        r1, r2, = np.random.uniform(0, 1), np.random.uniform(0, 1)
+        hamm1 = (1.0 - (np.count_nonzero(pos_curr != p_best_pos) / n))
+        hamm2 = (1.0 - (np.count_nonzero(pos_curr != global_best_pos) / n))
+        vp_best = c1 * r1 * hamm1
+        vg_best = c2 * r2 * hamm2
         v = v_rand + vg_best + vp_best
-        p_rand = v_rand / v
-        pp_best = vp_best / v
-        pg_best = vg_best / v
 
-        for i, _ in enumerate(pos_curr):
-            r = np.random.uniform(0, 1)
-            if r <= p_rand:
-                pos_curr[i] = np.random.choice([0, 1, 2, 3])
-            elif r <= p_rand + pp_best:
-                pos_curr[i] = p_best_pos[i]
-            else:
-                pos_curr[i] = global_best_pos[i]
-        pos_curr_dict[p_id] = pos_curr
+        pos_prev_dict[p_id] = pos_curr
+        if v == 0:
+            pos_curr = np.random.randint(label_size, size=len(pos_curr))
+            pos_curr_dict[p_id] = pos_curr
+        else:
+            p_rand = v_rand / v
+            pp_best = vp_best / v
+            pg_best = vg_best / v
+
+            for i, _ in enumerate(pos_curr):
+                r = np.random.uniform(0, 1)
+                if r <= p_rand:
+                    pos_curr[i] = np.random.choice([0, 1, 2, 3])
+                elif r <= p_rand + pp_best:
+                    pos_curr[i] = p_best_pos[i]
+                else:
+                    pos_curr[i] = global_best_pos[i]
+            pos_curr_dict[p_id] = pos_curr
 
         fitness_curr = self._fitness_func(pos_curr)
         fitness_best = self._fitness_func(pbest_dict[p_id])
@@ -115,9 +120,7 @@ class Solve:
         # Step 1 - Initialization
         particles = []
         manager = multiprocessing.Manager()
-        # common_dict = manager.dict()
         pos_curr_dict, pos_prev_dict, vel_dict, pbest_dict = manager.dict(), manager.dict(), manager.dict(), manager.dict()
-        # common_dict['pos_curr'], common_dict['pos_prev'], common_dict['vel'], common_dict['pbest'] = {}, {}, {}, {}
         for i in range(num_of_particles):
             p = multiprocessing.Process(target=self._particle_init,
                                         args=(i, self.incidence_matrix.shape[0], 4,
@@ -136,7 +139,6 @@ class Solve:
                 global_best_fit = pbest_fitness
                 global_best_pos = pos
 
-        print(pos_prev_dict, pos_curr_dict, vel_dict, pbest_dict)
         # Step 2 - Loop end check - fitness 0 or max iterations reached
         iter_counter = 1
         while global_best_fit != 0 and iter_counter <= max_iter:
@@ -144,7 +146,7 @@ class Solve:
             particles = []
             for i in range(num_of_particles):
                 p = multiprocessing.Process(target=self._particle_movement,
-                                            args=(i, w, c1, c2, global_best_pos,
+                                            args=(i, 4, w, c1, c2, global_best_pos,
                                                   pos_curr_dict, pos_prev_dict, vel_dict, pbest_dict))
                 particles.append(p)
                 p.start()
