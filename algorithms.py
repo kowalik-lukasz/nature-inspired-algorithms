@@ -110,7 +110,7 @@ class Solve:
         if fitness_curr < fitness_best:
             pbest_dict[p_id] = pos_curr
 
-    def nature(self, num_of_particles: int = 0, max_iter: int = 10000,
+    def nature(self, num_of_particles: int = 0, max_iter: int = 100,
                w: float = 0.8, c1: float = 0.1, c2: float = 0.1):
         """
         Solves the provided problem instance using the implemented nature-inspired PSO algorithm.
@@ -142,6 +142,7 @@ class Solve:
         # Step 2 - Loop end check - fitness 0 or max iterations reached
         iter_counter = 1
         while global_best_fit != 0 and iter_counter <= max_iter:
+            print(iter_counter)
             # Step 3 - Main loop of the particle movement
             particles = []
             for i in range(num_of_particles):
