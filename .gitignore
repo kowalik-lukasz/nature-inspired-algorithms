@@ -1,4 +1,4 @@
 .idea/
 __pycache__/
 problem-instances/di_gen
-graph-gen-tool
+graph-gen-tool/
