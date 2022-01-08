@@ -47,6 +47,8 @@ class Solve:
             if cand_fitness < best_fit_val:
                 best_fit_val = cand_fitness
                 best_fit_sol = cand_solution
+            if cand_fitness == 0:
+                break
 
         print('Saving the best solution found: ' + str(best_fit_sol) + '\nwith the fitness value: ' + str(best_fit_val))
         save_solution(self.filename, best_fit_sol)
@@ -110,7 +112,7 @@ class Solve:
         if fitness_curr < fitness_best:
             pbest_dict[p_id] = pos_curr
 
-    def nature(self, num_of_particles: int = 0, max_iter: int = 100,
+    def nature(self, num_of_particles: int = 100, max_iter: int = 100,
                w: float = 0.8, c1: float = 0.1, c2: float = 0.1):
         """
         Solves the provided problem instance using the implemented nature-inspired PSO algorithm.
