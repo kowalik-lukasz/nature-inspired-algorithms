@@ -76,10 +76,10 @@ def display_instance(filename: str, index_row: bool = True, index_col: bool = Fa
     if solved:
         for i, color in enumerate(solution_data.values[0]):
             labeldict[i] += ',' + str(color)
-        nx.draw(graph, labels=labeldict, with_labels=True,
-                # not a very elegant way of scaling the node size but it works
-                node_size=[len(label) * len(label) * 60 for _, label in labeldict.items()])
+        nx.draw_planar(graph, labels=labeldict, with_labels=True,
+                       # not a very elegant way of scaling the node size but it works
+                       node_size=[len(label) * len(label) * 60 for _, label in labeldict.items()])
     else:
-        nx.draw(graph, labels=labeldict, with_labels=True)
+        nx.draw_planar(graph, labels=labeldict, with_labels=True)
 
     plt.show()
