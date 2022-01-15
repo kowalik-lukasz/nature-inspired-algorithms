@@ -1,12 +1,14 @@
 import fire
 from algorithms import Solve
+from experiments import Experiment
 from utils import display_instance
 
 
 if __name__ == '__main__':
     fire.Fire({
         "display": display_instance,
-        "solve": Solve
+        "solve": Solve,
+        "experiment": Experiment
     })
 
     # display_instance('size11_instance.csv', index_col=True, solved=True)

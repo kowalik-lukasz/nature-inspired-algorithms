@@ -16,7 +16,7 @@ class Solve:
     :param index_col: a flag indicating whether the first column contains headers (default: False)
     """
 
-    def __init__(self, filename: str, index_row: bool = True, index_col: bool = False):
+    def __init__(self, filename: str, index_row: bool = False, index_col: bool = False):
         self.filename = filename
         self.incidence_matrix = read_instance(filename, index_row, index_col, output='numpy')
 
@@ -50,7 +50,9 @@ class Solve:
             if cand_fitness == 0:
                 break
 
-        print('Saving the best solution found: ' + str(best_fit_sol) + '\nwith the fitness value: ' + str(best_fit_val))
+        print('Saving the best solution found: ' + str(best_fit_sol) +
+              '\nwith the fitness value: ' + str(best_fit_val) +
+              '\nsuccess rate: ' + str(1.0 - ((best_fit_val / 2) / (3 * mat_size) / 2)))
         save_solution(self.filename, best_fit_sol)
 
     def _particle_init(self, p_id, mat_size, label_size,
@@ -113,11 +115,12 @@ class Solve:
             pbest_dict[p_id] = pos_curr
 
     def nature(self, num_of_particles: int = 100, max_iter: int = 100,
-               w: float = 0.8, c1: float = 0.1, c2: float = 0.1):
+               w: float = 0.01, c1: float = 0.3, c2: float = 8.0):
         """
         Solves the provided problem instance using the implemented nature-inspired PSO algorithm.
         """
         print("Solving with the nature inspired algorithm...")
+        time_start = time.time()
 
         # Step 1 - Initialization
         particles = []
@@ -144,7 +147,6 @@ class Solve:
         # Step 2 - Loop end check - fitness 0 or max iterations reached
         iter_counter = 1
         while global_best_fit != 0 and iter_counter <= max_iter:
-            print(iter_counter)
             # Step 3 - Main loop of the particle movement
             particles = []
             for i in range(num_of_particles):
@@ -165,6 +167,13 @@ class Solve:
 
             iter_counter += 1
 
-        print('Saving the best solution found: ' + str(global_best_pos)
-              + '\nwith the fitness value: ' + str(global_best_fit))
+        time_end = time.time()
+        success_rate = 1.0 - ((global_best_fit / 2) / (3 * self.incidence_matrix.shape[0] / 2))
+        time_elapsed = time_end - time_start
+        print('Saving the best solution found: ' + str(global_best_pos) +
+              '\nwith the fitness value: ' + str(global_best_fit) +
+              '\nsuccess rate: ' + str(success_rate) +
+              '\ntime elapsed: ' + str(time_elapsed))
+
         save_solution(self.filename, global_best_pos)
+        return success_rate, time_elapsed
