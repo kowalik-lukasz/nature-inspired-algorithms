@@ -56,16 +56,6 @@ class Solve:
             if solution[i] == -1:
                 solution[i] = random.randint(labels[0], labels[-1])
 
-        # for i, node_incidence in enumerate(self.incidence_matrix):
-        #     node_neighbours = solution[np.array(node_incidence, dtype=bool)]
-        #     for label in labels:
-        #         if label in node_neighbours:
-        #             continue
-        #         else:
-        #             solution[i] = label
-        #     if solution[i] == -1:
-        #         solution[i] = random.randint(labels[0], labels[-1])
-
         fitness = self._fitness_func(solution)
         success_rate = self._fitness_func(solution, rate=True)
         print('Saving the solution: ' + str(solution) +
