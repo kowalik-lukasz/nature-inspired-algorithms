@@ -38,7 +38,18 @@ def save_solution(filename: str, data: np.array):
     np.savetxt(os.path.join('solved-instances', 'solved_' + filename), [data], delimiter=',', fmt='%d')
 
 
-def display_instance(filename: str, index_row: bool = True, index_col: bool = False, solved: bool = False):
+def generate_instance(size: int):
+    if size % 5 != 0:
+        print('Provide size that is divisible by 4.')
+        return
+    region = int(size / 5)
+    g = nx.complete_multipartite_graph(region, region, region, region, region)
+    a = nx.to_numpy_array(g)
+    filename = 'size' + str(size) + '_instance.csv'
+    np.savetxt(os.path.join('problem-instances', '' + filename), a, delimiter=',', fmt='%d')
+
+
+def display_instance(filename: str, index_row: bool = False, index_col: bool = False, solved: bool = False):
     """
     Displays the problem instance visually. The instance must exist within problem-instances directory
     :param filename: the name of the problem instance
@@ -46,6 +57,11 @@ def display_instance(filename: str, index_row: bool = True, index_col: bool = Fa
     :param index_col: a flag indicating whether the first column contains headers (default: False)
     :param solved: a flag indicating whether the solution should be displayed (if available) along with the problem instance (default: False)
     """
+    g = nx.complete_multipartite_graph(3, 3, 3)
+    print(g.number_of_edges())
+    nx.draw(g)
+    plt.show()
+    return
     problem_data = read_instance(filename, index_row, index_col)
     if not isinstance(problem_data, pd.DataFrame):
         print("Error! Data type not valid, quitting...")
