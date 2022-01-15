@@ -1,5 +1,6 @@
 import multiprocessing
 import os
+import random
 import sys
 import numpy as np
 import time
@@ -20,15 +21,57 @@ class Solve:
         self.filename = filename
         self.incidence_matrix = read_instance(filename, index_row, index_col, output='numpy')
 
-    def _fitness_func(self, solution: np.array = None):
+    def _fitness_func(self, solution: np.array = None, rate: bool = False):
         fitness = 0
+        num_of_arches = np.count_nonzero(self.incidence_matrix) / 2
         for i, node_incidence in enumerate(self.incidence_matrix):
             inode_label = solution[i]
             node_neighbors = solution[np.array(node_incidence, dtype=bool)]
             conflicts = inode_label == node_neighbors
             fitness += np.count_nonzero(conflicts)
 
+        if rate:
+            return 1.0 - fitness / 2 / num_of_arches
         return fitness
+
+    def greedy(self):
+        """
+        Solves the provided problem instance using the implemented reference algorithm - greedy.
+        """
+        print("Solving with the greedy algorithm...")
+        labels = [0, 1, 2, 3]
+        mat_size = self.incidence_matrix.shape[0]
+        solution = np.full(mat_size, -1)
+        vertices = [i for i in range(mat_size)]
+        random.shuffle(vertices)
+
+        for i in vertices:
+            node_incidence = self.incidence_matrix[i]
+            node_neighbours = solution[np.array(node_incidence, dtype=bool)]
+            for label in labels:
+                if label in node_neighbours:
+                    continue
+                else:
+                    solution[i] = label
+            if solution[i] == -1:
+                solution[i] = random.randint(labels[0], labels[-1])
+
+        # for i, node_incidence in enumerate(self.incidence_matrix):
+        #     node_neighbours = solution[np.array(node_incidence, dtype=bool)]
+        #     for label in labels:
+        #         if label in node_neighbours:
+        #             continue
+        #         else:
+        #             solution[i] = label
+        #     if solution[i] == -1:
+        #         solution[i] = random.randint(labels[0], labels[-1])
+
+        fitness = self._fitness_func(solution)
+        success_rate = self._fitness_func(solution, rate=True)
+        print('Saving the solution: ' + str(solution) +
+              '\nwith the fitness value: ' + str(fitness) +
+              '\nsuccess rate: ' + str(success_rate))
+        save_solution(self.filename, solution)
 
     def reference(self):
         """
@@ -102,7 +145,7 @@ class Solve:
             for i, _ in enumerate(pos_curr):
                 r = np.random.uniform(0, 1)
                 if r <= p_rand:
-                    pos_curr[i] = np.random.choice([0, 1, 2, 3])
+                    pos_curr[i] = np.random.choice([i for i in range(label_size)])
                 elif r <= p_rand + pp_best:
                     pos_curr[i] = p_best_pos[i]
                 else:
@@ -114,8 +157,8 @@ class Solve:
         if fitness_curr < fitness_best:
             pbest_dict[p_id] = pos_curr
 
-    def nature(self, num_of_particles: int = 100, max_iter: int = 100,
-               w: float = 0.01, c1: float = 0.3, c2: float = 8.0):
+    def nature(self, num_of_particles: int = 10, max_iter: int = 50,
+               w: float = 0.01, c1: float = 0.4, c2: float = 1.8):
         """
         Solves the provided problem instance using the implemented nature-inspired PSO algorithm.
         """
@@ -168,12 +211,12 @@ class Solve:
             iter_counter += 1
 
         time_end = time.time()
-        success_rate = 1.0 - ((global_best_fit / 2) / (3 * self.incidence_matrix.shape[0] / 2))
         time_elapsed = time_end - time_start
+        success_rate = self._fitness_func(global_best_pos, rate=True)
         print('Saving the best solution found: ' + str(global_best_pos) +
               '\nwith the fitness value: ' + str(global_best_fit) +
               '\nsuccess rate: ' + str(success_rate) +
               '\ntime elapsed: ' + str(time_elapsed))
-
         save_solution(self.filename, global_best_pos)
+
         return success_rate, time_elapsed
