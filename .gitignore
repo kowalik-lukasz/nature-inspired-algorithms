@@ -2,3 +2,4 @@
 __pycache__/
 problem-instances/di_gen
 problem-instances/di_gen.c
+.ipynb_checkpoints/
