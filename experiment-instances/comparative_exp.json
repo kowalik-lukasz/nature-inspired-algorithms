@@ -1,0 +1,23 @@
+{
+  "instances": [
+    "size10_instance.csv",
+    "size15_instance.csv",
+    "size25_instance.csv",
+    "size50_instance.csv",
+    "size100_instance.csv",
+    "size200_instance.csv",
+    "size500_instance.csv",
+    "size1000_instance.csv"
+  ],
+  "repetitions": 30,
+  "algorithms": {
+    "nature":{
+      "w": 0.01,
+      "c1": 0.4,
+      "c2": 1.8,
+      "num_of_particles": 10,
+      "max_iter": 50
+    },
+    "greedy": {}
+  }
+}

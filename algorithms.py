@@ -34,11 +34,11 @@ class Solve:
             return 1.0 - fitness / 2 / num_of_arches
         return fitness
 
-    def greedy(self):
+    def greedy(self, supress_logs: bool = False):
         """
         Solves the provided problem instance using the implemented reference algorithm - greedy.
         """
-        print("Solving with the greedy algorithm...")
+        time_start = time.time()
         labels = [0, 1, 2, 3]
         mat_size = self.incidence_matrix.shape[0]
         solution = np.full(mat_size, -1)
@@ -58,10 +58,16 @@ class Solve:
 
         fitness = self._fitness_func(solution)
         success_rate = self._fitness_func(solution, rate=True)
-        print('Saving the solution: ' + str(solution) +
-              '\nwith the fitness value: ' + str(fitness) +
-              '\nsuccess rate: ' + str(success_rate))
+        time_end = time.time()
+        time_elapsed = time_end - time_start
+        if not supress_logs:
+            print('Saving the solution: ' + str(solution) +
+                  '\nwith the fitness value: ' + str(fitness) +
+                  '\nsuccess rate: ' + str(success_rate) +
+                  '\ntime elapsed: ' + str(time_elapsed))
+
         save_solution(self.filename, solution)
+        return success_rate, time_elapsed
 
     def reference(self):
         """
@@ -148,11 +154,10 @@ class Solve:
             pbest_dict[p_id] = pos_curr
 
     def nature(self, num_of_particles: int = 10, max_iter: int = 50,
-               w: float = 0.01, c1: float = 0.4, c2: float = 1.8):
+               w: float = 0.01, c1: float = 0.4, c2: float = 1.8, supress_logs: bool = False):
         """
         Solves the provided problem instance using the implemented nature-inspired PSO algorithm.
         """
-        print("Solving with the nature inspired algorithm...")
         time_start = time.time()
 
         # Step 1 - Initialization
@@ -203,10 +208,11 @@ class Solve:
         time_end = time.time()
         time_elapsed = time_end - time_start
         success_rate = self._fitness_func(global_best_pos, rate=True)
-        print('Saving the best solution found: ' + str(global_best_pos) +
-              '\nwith the fitness value: ' + str(global_best_fit) +
-              '\nsuccess rate: ' + str(success_rate) +
-              '\ntime elapsed: ' + str(time_elapsed))
-        save_solution(self.filename, global_best_pos)
+        if not supress_logs:
+            print('Saving the best solution found: ' + str(global_best_pos) +
+                  '\nwith the fitness value: ' + str(global_best_fit) +
+                  '\nsuccess rate: ' + str(success_rate) +
+                  '\ntime elapsed: ' + str(time_elapsed))
 
+        save_solution(self.filename, global_best_pos)
         return success_rate, time_elapsed
