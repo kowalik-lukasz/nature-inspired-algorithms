@@ -1,0 +1,18 @@
+{
+  "algorithm": "nature",
+  "steered_param": {
+    "name": "w",
+    "min_val": 0.01,
+    "max_val": 0.4,
+    "repetitions": 10,
+    "step": 0.01
+  },
+  "other_params": {
+    "w": 0.05,
+    "c1": 1.0,
+    "c2": 1.0,
+    "num_of_particles": 10,
+    "max_iter": 50,
+    "filename": "size500_instance.csv"
+  }
+}
